@@ -27,17 +27,9 @@ def _top_k(
         0 < k <= num_logits
     ), "k must be greater than 0 and less than or equal to the number of logits."
     top_k_indices = jnp.argsort(logits, axis=0, descending=True)[k : k + 1]
-    # raise ValueError(top_k_indices)
-    # top_k_logits = logits[top_k_indices]
     top_k_logit = jnp.take_along_axis(logits, top_k_indices, axis=0)
     top_k_logits = jnp.where(logits >= top_k_logit, logits, 0)
     top_k_logits = jnp.moveaxis(top_k_logits, 0, axis)
-    # batch_indices = jnp.indices(batch_size)
-    # # Use advanced indexing to select top-k logits
-    # raise ValueError(top_k_indices.shape, batch_indices.shape, top_k_indices, batch_indices)
-    # top_k_logits = logits[batch_indices + (top_k_indices,)]
-
-    print("AAAA", top_k_logits.shape, (*batch_size, num_samples))
     samples = jax.random.categorical(
         key=jax.random.PRNGKey(seed),
         logits=top_k_logits,
@@ -45,9 +37,6 @@ def _top_k(
         shape=(num_samples, *batch_size),
     )
     return jnp.moveaxis(samples, 0, axis)
-
-    # raise ValueError(top_k_logits, bla)
-    return bla
 
 
 def _nucleus(
@@ -66,7 +55,6 @@ def _nucleus(
     sorted_logits = jnp.sort(logits, axis=-1, descending=True)
     sorted_probs = jax.nn.softmax(sorted_logits, axis=-1)
     cumulative_probs = jnp.cumsum(sorted_probs, axis=-1)
-    # NOT DONE YET
     del cumulative_probs
     return logits
 
